@@ -4,7 +4,7 @@ dist/
 .DS_Store
 
 # Raw simulation data (large, regenerable)
-data/
+/data/
 
 # Disassembly repos (cloned separately)
 pokecrystal/
