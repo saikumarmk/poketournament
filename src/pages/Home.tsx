@@ -17,7 +17,7 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
 
   const top10 = rankings.slice(0, 10);
   const totalBattles = rankings.reduce((sum, t) => sum + t.win + t.loss + t.draw, 0) / 2;
-  const genLabel = gen === 2 ? 'Crystal' : 'Red';
+  const genLabel = gen === 3 ? 'Emerald' : gen === 2 ? 'Crystal' : 'Red';
   const whitneyIdx = rankings.findIndex(r => r.name === 'WHITNEY');
   const whitneyRank = whitneyIdx >= 0 ? whitneyIdx + 1 : null;
   const topTotal = rankings[0] ? rankings[0].win + rankings[0].loss + rankings[0].draw : 0;
@@ -48,7 +48,9 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
         <p className="text-gb-dim">
           Every in-game trainer &mdash; from the rival&apos;s Lv5 starter on Route 1 all the
           way to the Champion &mdash; is extracted directly from the{' '}
-          {gen === 2
+          {gen === 3
+            ? <a href="https://github.com/pret/pokeemerald" className="text-gb-link hover:text-gb-accent" target="_blank" rel="noreferrer">pokeemerald</a>
+            : gen === 2
             ? <a href="https://github.com/pret/pokecrystal" className="text-gb-link hover:text-gb-accent" target="_blank" rel="noreferrer">pokecrystal</a>
             : <a href="https://github.com/pret/pokered" className="text-gb-link hover:text-gb-accent" target="_blank" rel="noreferrer">pokered</a>
           }{' '}
@@ -68,7 +70,7 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
             the strongest E4 member thanks to her double-Gengar sleep onslaught.
             Your Rival&apos;s opening Lv5 starter sits dead last at #{rankings.length}.
           </p>
-        ) : (
+        ) : gen === 2 ? (
           <p className="text-gb-dim">
             Some highlights: <span className="text-gb-text">RED</span> sits at the top with
             his iconic team (Pikachu, Espeon, Snorlax, all three starters) &mdash; he lost
@@ -81,6 +83,18 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
               10-year-old, mid-tier against 540 other trainers.
             </>)}
           </p>
+        ) : (
+          <p className="text-gb-dim">
+            Some highlights: <span className="text-gb-text">STEVEN</span> &mdash; the post-game
+            boss in Meteor Falls &mdash; is completely undefeated with his
+            Skarmory/Claydol/Aggron/Cradily/Armaldo/Metagross squad.{' '}
+            <span className="text-gb-text">Champion WALLACE</span> is #2, and the entire{' '}
+            <span className="text-gb-text">Elite Four</span> (Glacia, Drake, Phoebe, Sidney)
+            fills out the top 8. Route 104&apos;s DARIAN sits at #{rankings.length} with a
+            single Zigzagoon.
+            The famous <code className="text-gb-accent">GetMostSuitableMonToSwitchInto</code> bug
+            means switching often picks the worst defensive typing instead of the best.
+          </p>
         )}
         <div className="flex flex-wrap gap-2 pt-1">
           <Tag label={`${rankings.length} TRAINERS`} />
@@ -91,9 +105,9 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
 
       <section className="gb-card p-4 space-y-3 font-readable">
         <h2 className="text-xxs text-gb-accent font-pokemon">
-          HOW THE {gen === 2 ? 'GEN II' : 'GEN I'} AI ACTUALLY WORKS
+          HOW THE {gen === 3 ? 'GEN III' : gen === 2 ? 'GEN II' : 'GEN I'} AI ACTUALLY WORKS
         </h2>
-        {gen === 1 ? <Gen1AI /> : <Gen2AI />}
+        {gen === 3 ? <Gen3AI /> : gen === 2 ? <Gen2AI /> : <Gen1AI />}
       </section>
 
       <section className="gb-card p-4 space-y-3 font-readable">
@@ -102,7 +116,9 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
           <div className="border border-gb-border p-3">
             <div className="text-gb-text font-pokemon text-xxs mb-1">Normal Mode</div>
             <p className="text-gb-dim">
-              {gen === 2
+              {gen === 3
+                ? "Original in-game levels. Steven\u2019s Lv77 Metagross and Wallace\u2019s Lv58 Milotic steamroll early-route teams. The entire Elite Four occupies the top 8. Level advantage and 6-mon squads dominate."
+                : gen === 2
                 ? "Original in-game levels. RED\u2019s Lv81 Pikachu steamrolls Lv4 Rattatas, as nature intended. Lance\u2019s triple Dragonite tears through early-game trainers. Level advantage dominates."
                 : "Original in-game levels. Prof. Oak\u2019s Lv70 Gyarados steamrolls Brock\u2019s Lv12 Geodude. Lance\u2019s Lv62 Dragonite tears through early-route trainers. The level curve is brutal."}
             </p>
@@ -110,7 +126,9 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
           <div className="border border-gb-border p-3">
             <div className="text-gb-text font-pokemon text-xxs mb-1">Level 50 Mode</div>
             <p className="text-gb-dim">
-              {gen === 2
+              {gen === 3
+                ? "All Pok\u00e9mon set to Lv50. The great equalizer. Wallace goes undefeated \u2014 his 6-mon Water squad is untouchable when levels are even. Gym Leaders like Norman and Winona crack the top 10. Wally\u2019s early-game Ralts is near dead last."
+                : gen === 2
                 ? "All Pok\u00e9mon set to Lv50. The great equalizer. Now it\u2019s pure team composition and AI. Whitney\u2019s Miltank jumps almost 200 ranks. Bugsy\u2019s Metapod/Kakuna dead weight still drags him down."
                 : "All Pok\u00e9mon set to Lv50. The great equalizer. Now it\u2019s pure team comp and AI quality. Agatha\u2019s double Gengar + sleep strats push her to #1. Team diversity matters."}
             </p>
@@ -118,21 +136,31 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
         </div>
       </section>
 
-      {gen === 2 && (
+      {(gen === 2 || gen === 3) && (
         <section className="gb-card p-4 space-y-3 font-readable">
           <h2 className="text-xxs text-gb-accent font-pokemon">WATCH ANY BATTLE</h2>
           <p className="text-gb-dim">
-            Gen II battles can be replayed turn by turn in the browser. Click any trainer,
+            Every battle can be replayed turn by turn in the browser. Click any trainer,
             find an opponent in their head-to-head table, and hit{' '}
             <span className="text-gb-text">Watch</span>. The full battle engine runs
             client-side with the complete AI &mdash; scoring layers, switching logic, item
             usage, all of it. The same deterministic seed means you&apos;ll see the exact same
             battle that produced the tournament result.
           </p>
-          <p className="text-gb-dim">
-            Want to see Karen&apos;s Umbreon set up on Will&apos;s Xatu? Or Lance&apos;s
-            Dragonite sweep through Falkner&apos;s team? Every matchup is replayable.
-          </p>
+          {gen === 2 && (
+            <p className="text-gb-dim">
+              Want to see Karen&apos;s Umbreon set up on Will&apos;s Xatu? Or Lance&apos;s
+              Dragonite sweep through Falkner&apos;s team? Every matchup is replayable.
+            </p>
+          )}
+          {gen === 3 && (
+            <p className="text-gb-dim">
+              Watch Steven&apos;s Metagross bulldoze route trainers, or see how the
+              <code className="text-gb-accent"> GetMostSuitableMonToSwitchInto</code> bug
+              makes the AI swap to the worst possible counter. All 9 scoring scripts,
+              abilities, weather, and up to 4 items per trainer &mdash; running live.
+            </p>
+          )}
         </section>
       )}
 
@@ -175,6 +203,7 @@ export default function Home({ gen, mode }: { gen: Generation; mode: TournamentM
           {' \u00b7 '}React + Vite + Tailwind
           {' \u00b7 '}Data: <a href="https://github.com/pret/pokered" className="text-gb-link" target="_blank" rel="noreferrer">pokered</a>
           {' / '}<a href="https://github.com/pret/pokecrystal" className="text-gb-link" target="_blank" rel="noreferrer">pokecrystal</a>
+          {' / '}<a href="https://github.com/pret/pokeemerald" className="text-gb-link" target="_blank" rel="noreferrer">pokeemerald</a>
         </p>
       </section>
     </div>
@@ -476,6 +505,119 @@ function Gen2AI() {
           pokecrystal assembly code
         </a>{' '}
         into TypeScript &mdash; including probability rolls and edge cases.
+      </p>
+    </div>
+  );
+}
+
+function Gen3AI() {
+  return (
+    <div className="space-y-3">
+      <p className="text-gb-dim">
+        Gen III overhauled the AI again. Emerald uses a{' '}
+        <span className="text-gb-text">scoring system</span> with{' '}
+        <span className="text-gb-text">9 script flags</span> (higher = better). Every move
+        starts at score <span className="text-gb-accent">100</span>. Each active script adds
+        or subtracts based on battle state. The highest-scoring move is chosen.
+      </p>
+      <p className="text-gb-dim">
+        Key differences from Gen II: <span className="text-gb-text">abilities matter</span>{' '}
+        &mdash; Wonder Guard, Levitate, Soundproof, Flash Fire, Volt Absorb, Water Absorb
+        all affect move viability. <span className="text-gb-text">Weather is strategic</span>,
+        with Sunny Day and Rain Dance combos. Trainers carry up to{' '}
+        <span className="text-gb-text">4 items</span> instead of 2. Switching checks for
+        type absorption abilities. But the famous{' '}
+        <span className="text-gb-text">GetMostSuitableMonToSwitchInto</span> bug picks the
+        worst defensive typing instead of the best.
+      </p>
+
+      <div className="space-y-3">
+        <Layer name="AI_SCRIPT_CHECK_BAD_MOVE" score="-10 / -8">
+          <p className="text-gb-dim">
+            Penalizes immune, redundant, or wasted moves. Checks abilities: Wonder Guard,
+            Levitate, Soundproof, Flash Fire, Volt Absorb, Water Absorb. Penalizes maxed stat
+            boosts, duplicate status, duplicate screens, etc. Score: -10 to dismiss, -8 to
+            strongly discourage.
+          </p>
+        </Layer>
+
+        <Layer name="AI_SCRIPT_TRY_TO_FAINT" score="+4 / +2">
+          <p className="text-gb-dim">
+            If move can KO target: +4 if target is faster, +2 otherwise. If can&apos;t KO but move
+            is strongest and AI is low HP, +2.
+          </p>
+        </Layer>
+
+        <Layer name="AI_SCRIPT_CHECK_VIABILITY" score="-10 to +5">
+          <p className="text-gb-dim">
+            The &quot;smart&quot; evaluator with ~120 effect-specific handlers. Encourages or
+            discourages moves based on detailed battle state. Sleep + Dream Eater combo,
+            weather synergies, Baton Pass strategy, Counter/Mirror Coat targeting, stat stage
+            awareness, etc.
+          </p>
+          <MoveList label="Example handlers" moves={[
+            'Dream Eater', 'Solar Beam', 'Rain Dance', 'Sunny Day', 'Counter',
+            'Mirror Coat', 'Protect', 'Baton Pass',
+          ]} />
+        </Layer>
+
+        <Layer name="AI_SCRIPT_SETUP_FIRST_TURN" score="+2 (50%)">
+          <p className="text-gb-dim">
+            On turn 1, 50% chance of +2 to setup/status moves (stat boosts, screens,
+            status inflicters).
+          </p>
+          <MoveList label="Affected" moves={[
+            'Swords Dance', 'Dragon Dance', 'Calm Mind', 'Light Screen', 'Reflect',
+          ]} />
+        </Layer>
+
+        <Layer name="AI_SCRIPT_RISKY" score="+2 (50%)">
+          <p className="text-gb-dim">
+            50% chance of +2 for risky moves: Explosion, OHKO, Metronome, Destiny Bond,
+            Belly Drum, etc.
+          </p>
+          <MoveList label="Risky moves" moves={[
+            'Explosion', 'Self-Destruct', 'Guillotine', 'Horn Drill', 'Fissure',
+            'Metronome', 'Destiny Bond', 'Belly Drum',
+          ]} />
+        </Layer>
+
+        <Layer name="AI_SCRIPT_PREFER_POWER_EXTREMES" score="-1 / +1">
+          <p className="text-gb-dim">
+            -1 to weak moves (&lt;=40 BP), +1 to strong (&gt;100 BP). Eruption exempt.
+          </p>
+        </Layer>
+
+        <Layer name="AI_SCRIPT_PREFER_BATON_PASS" score="+2 / -10 / -1">
+          <p className="text-gb-dim">
+            +2 to setup moves (Swords Dance, Dragon Dance, Calm Mind). -10 to Baton Pass if
+            no setup used yet. -1 to non-setup attacks.
+          </p>
+          <MoveList label="Setup moves" moves={[
+            'Swords Dance', 'Dragon Dance', 'Calm Mind', 'Baton Pass',
+          ]} />
+        </Layer>
+
+        <Layer name="AI_SCRIPT_HP_AWARE" score="varies">
+          <p className="text-gb-dim">
+            Discourages moves based on HP tiers &mdash; different tables for user high/med/low
+            HP and target high/med/low HP.
+          </p>
+        </Layer>
+
+        <Layer name="AI_SCRIPT_TRY_SUNNY_DAY_START" score="+2 (50%)">
+          <p className="text-gb-dim">
+            +2 to Sunny Day on turn 1 (50% chance).
+          </p>
+        </Layer>
+      </div>
+
+      <p className="text-gb-dim">
+        All scripts were ported from the{' '}
+        <a href="https://github.com/pret/pokeemerald" className="text-gb-link hover:text-gb-accent" target="_blank" rel="noreferrer">
+          pokeemerald disassembly
+        </a>
+        .
       </p>
     </div>
   );

@@ -139,7 +139,7 @@ def calculate(suffix: str, input_dir: Path, out_dir: Path):
             "worstLoss": worst_losses.get(tid),
             "pokemon": t["pokemon"],
         }
-        for key in ("modifiers", "trainerClass", "aiFlags", "switchFlag", "trainerItems", "itemUseFlag"):
+        for key in ("modifiers", "trainerClass", "aiFlags", "switchFlag", "trainerItems", "itemUseFlag", "items"):
             if key in t:
                 entry[key] = t[key]
         rankings.append(entry)
@@ -189,11 +189,21 @@ def calculate(suffix: str, input_dir: Path, out_dir: Path):
 
 def main():
     gen = sys.argv[1] if len(sys.argv) > 1 else "gen1"
+    suffix_arg = sys.argv[2] if len(sys.argv) > 2 else None
     script_dir = Path(__file__).parent
     input_dir = script_dir.parent / "data"
     out_dir = script_dir.parent / "public" / "data"
 
-    suffixes = ["-gen2", "-gen2-lv50"] if gen == "gen2" else ["", "-lv50"]
+    if gen == "gen3":
+        suffixes = ["-gen3", "-gen3-lv50"]
+    elif gen == "gen2":
+        suffixes = ["-gen2", "-gen2-lv50"]
+    else:
+        suffixes = ["", "-lv50"]
+
+    if suffix_arg:
+        suffixes = [s for s in suffixes if s.endswith(suffix_arg)]
+
     for suffix in suffixes:
         calculate(suffix, input_dir, out_dir)
 

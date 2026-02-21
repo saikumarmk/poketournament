@@ -45,13 +45,13 @@ export default function TrainerDetail({ gen, mode }: { gen: Generation; mode: To
   }, [trainerId, gen, mode]);
 
   async function handleWatch(opponentId: string) {
-    if (!trainer || gen !== 2) return;
+    if (!trainer || (gen !== 2 && gen !== 3)) return;
     const opponent = allRankings.find(r => r.id === opponentId);
     if (!opponent) return;
     setSimulating(opponentId);
     try {
       const { simulateBattle } = await import('../battle-sim');
-      const log = await simulateBattle(trainer, opponent);
+      const log = await simulateBattle(trainer, opponent, gen);
       setReplayLog(log);
       setReplayOpponent(opponent);
     } finally {
@@ -158,7 +158,7 @@ export default function TrainerDetail({ gen, mode }: { gen: Generation; mode: To
           <MatchupTable
             matchups={matchups} allRankings={allRankings}
             searchParams={searchParams} gen={gen}
-            onWatch={gen === 2 ? handleWatch : undefined}
+            onWatch={(gen === 2 || gen === 3) ? handleWatch : undefined}
             simulating={simulating}
           />
         )}
@@ -192,8 +192,10 @@ function formatItem(item: string | null): string {
 
 function AIInfo({ trainer, gen }: { trainer: RankedTrainer; gen: Generation }) {
   const hasAI = (gen === 1 && trainer.modifiers && trainer.modifiers.length > 0) ||
-    (gen === 2 && trainer.aiFlags && trainer.aiFlags.length > 0);
-  const hasItems = trainer.trainerItems && (trainer.trainerItems[0] || trainer.trainerItems[1]);
+    ((gen === 2 || gen === 3) && trainer.aiFlags && trainer.aiFlags.length > 0);
+  const hasItemsGen2 = gen === 2 && trainer.trainerItems && (trainer.trainerItems[0] || trainer.trainerItems[1]);
+  const hasItemsGen3 = gen === 3 && trainer.items && trainer.items.length > 0;
+  const hasItems = hasItemsGen2 || hasItemsGen3;
 
   if (!hasAI && !hasItems) return null;
 
@@ -211,7 +213,7 @@ function AIInfo({ trainer, gen }: { trainer: RankedTrainer; gen: Generation }) {
             ))}
           </div>
         )}
-        {gen === 2 && trainer.aiFlags && trainer.aiFlags.length > 0 && (
+        {(gen === 2 || gen === 3) && trainer.aiFlags && trainer.aiFlags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-gb-muted" style={{ fontSize: '0.4rem' }}>AI:</span>
             {trainer.aiFlags.map(f => (
@@ -229,7 +231,7 @@ function AIInfo({ trainer, gen }: { trainer: RankedTrainer; gen: Generation }) {
             </span>
           </div>
         )}
-        {hasItems && (
+        {hasItemsGen2 && (
           <div className="flex items-center gap-1.5">
             <span className="text-gb-muted" style={{ fontSize: '0.4rem' }}>Items:</span>
             {trainer.trainerItems!.filter(Boolean).map((item, i) => (
@@ -242,6 +244,16 @@ function AIInfo({ trainer, gen }: { trainer: RankedTrainer; gen: Generation }) {
                 ({trainer.itemUseFlag.replace(/_/g, ' ').toLowerCase()})
               </span>
             )}
+          </div>
+        )}
+        {hasItemsGen3 && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-gb-muted" style={{ fontSize: '0.4rem' }}>Items:</span>
+            {trainer.items!.map((item, i) => (
+              <span key={i} className="text-gb-win border border-gb-border px-1.5 py-0.5" style={{ fontSize: '0.4rem' }}>
+                {formatItem(item)}
+              </span>
+            ))}
           </div>
         )}
       </div>

@@ -22,7 +22,8 @@ export interface RankedTrainer {
   switchFlag?: string | null;
   trainerItems?: [string | null, string | null];
   itemUseFlag?: string | null;
+  items?: string[];
 }
 
 export type TournamentMode = '' | '-lv50';
-export type Generation = 1 | 2;
+export type Generation = 1 | 2 | 3;

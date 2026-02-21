@@ -21,7 +21,7 @@ export default function Rankings({ gen, mode }: { gen: Generation; mode: Tournam
     t.pokemon.some(p => p.species.toLowerCase().includes(search.toLowerCase())),
   );
 
-  const genLabel = gen === 2 ? 'Gen II' : 'Gen I';
+  const genLabel = gen === 3 ? 'Gen III' : gen === 2 ? 'Gen II' : 'Gen I';
 
   return (
     <div>

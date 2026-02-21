@@ -13,7 +13,7 @@ const rankingsCache: Record<string, RankedTrainer[]> = {};
 const matchupsCache: Record<string, IndexedMatchups> = {};
 
 function dataSuffix(gen: Generation, mode: TournamentMode): string {
-  const genPart = gen === 2 ? '-gen2' : '';
+  const genPart = gen === 3 ? '-gen3' : gen === 2 ? '-gen2' : '';
   return `${genPart}${mode}`;
 }
 
@@ -55,7 +55,7 @@ export async function getMatchups(
 
 export function spriteUrl(species: string, gen: Generation = 1): string {
   const id = species.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const genStr = gen === 2 ? 'gen2' : 'gen1';
+  const genStr = gen === 3 ? 'gen3' : gen === 2 ? 'gen2' : 'gen1';
   return `https://play.pokemonshowdown.com/sprites/${genStr}/${id}.png`;
 }
 
@@ -121,7 +121,53 @@ const GEN2_SPRITE_MAP: Record<string, string> = {
   KIMONO_GIRL: 'kimono_girl', TWINS: 'twins', OFFICER: 'officer',
 };
 
+const GEN3_NAME_SPRITE_MAP: Record<string, string> = {
+  'SIDNEY': 'sidney-gen3', 'PHOEBE': 'phoebe-gen3', 'GLACIA': 'glacia-gen3', 'DRAKE': 'drake-gen3',
+  'ROXANNE': 'roxanne-gen3', 'BRAWLY': 'brawly-gen3', 'WATTSON': 'wattson-gen3',
+  'FLANNERY': 'flannery-gen3', 'NORMAN': 'norman-gen3', 'WINONA': 'winona-gen3',
+  'TATE&LIZA': 'tateandliza-gen3', 'JUAN': 'juan-gen3',
+  'WALLACE': 'wallace-gen3', 'STEVEN': 'steven-gen3',
+  'BRENDAN': 'brendan-gen3rs', 'MAY': 'may-gen3rs', 'WALLY': 'wally-gen3',
+  'ARCHIE': 'archie-gen3', 'MAXIE': 'maxie-gen3',
+  'MATT': 'matt-gen3', 'SHELLY': 'shelly-gen3',
+  'TABITHA': 'tabitha-gen3', 'COURTNEY': 'courtney-gen3',
+};
+
+const GEN3_CLASS_SPRITE_MAP: Record<string, string> = {
+  'Team Aqua': 'aquagrunt-rse', 'Team Magma': 'magmagrunt-rse',
+  'Aqua Admin': 'aquagrunt-rse', 'Magma Admin': 'magmagrunt-rse',
+  'Aqua Leader': 'archie-gen3', 'Magma Leader': 'maxie-gen3',
+  'Elite Four': 'acetrainer-gen3', 'Leader': 'acetrainer-gen3', 'Champion': 'wallace-gen3',
+  'Arena Tycoon': 'brandon-gen3', 'Dome Ace': 'tucker-gen3', 'Factory Head': 'noland-gen3',
+  'Pike Queen': 'lucy-gen3', 'Palace Maven': 'spenser-gen3', 'Pyramid King': 'brandon-gen3',
+  'Salon Maiden': 'anabel-gen3', 'Cooltrainer': 'acetrainer-gen3', 'Aroma Lady': 'aromalady-gen3',
+  'Beauty': 'beauty-gen3', 'Battle Girl': 'battlegirl-gen3', 'Bird Keeper': 'birdkeeper-gen3',
+  'Black Belt': 'blackbelt-gen3', 'Bug Catcher': 'bugcatcher-gen3', 'Bug Maniac': 'bugmaniac-gen3',
+  'Camper': 'camper-gen3', 'Collector': 'collector-gen3', 'Expert': 'blackbelt-gen3',
+  'Fisherman': 'fisherman-gen3', 'Gentleman': 'gentleman', 'Guitarist': 'guitarist-gen3',
+  'Hex Maniac': 'hexmaniac-gen3', 'Hiker': 'hiker', 'Kindler': 'burglar-gen3',
+  'Lady': 'beauty-gen3', 'Lass': 'lass', 'Ninja Boy': 'ninjaboy-gen3', 'Old Couple': 'acetrainercouple-gen3',
+  'Parasol Lady': 'parasollady-gen3', 'Picnicker': 'picnicker-gen3', 'Pkmn Breeder': 'acetrainer-gen3',
+  'Pkmn Ranger': 'pokemonranger-gen3', 'Pokefan': 'pokefan-gen3', 'Pokemaniac': 'pokemaniac',
+  'Psychic': 'psychic-gen3', 'Rich Boy': 'richboy-gen3', 'Rival': 'brendan-gen3rs',
+  'Rs Protag': 'brendan-gen3rs', 'Ruin Maniac': 'ruinmaniac-gen3', 'Sailor': 'sailor',
+  'School Kid': 'schoolkid-gen3', 'Sis And Bro': 'sisandbro-gen3', 'Sr And Jr': 'srandjr-gen3',
+  'Swimmer F': 'swimmerf-gen3', 'Swimmer M': 'swimmerm-gen3', 'Triathlete': 'biker-gen3',
+  'Tuber F': 'tuberf-gen3', 'Tuber M': 'tuber-gen3', 'Twins': 'twins-gen3',
+  'Winstrate': 'acetrainer-gen3', 'Young Couple': 'youngcouple-gen3', 'Youngster': 'youngster',
+  'Interviewer': 'reporter', 'Dragon Tamer': 'dragontamer-gen3',
+};
+
 export function trainerSpriteUrl(trainerName: string, gen: Generation = 1, trainerClass?: string): string {
+  if (gen === 3) {
+    const nameKey = GEN3_NAME_SPRITE_MAP[trainerName];
+    if (nameKey) return `https://play.pokemonshowdown.com/sprites/trainers/${nameKey}.png`;
+    if (trainerClass) {
+      const classKey = GEN3_CLASS_SPRITE_MAP[trainerClass];
+      if (classKey) return `https://play.pokemonshowdown.com/sprites/trainers/${classKey}.png`;
+    }
+    return `https://play.pokemonshowdown.com/sprites/trainers/youngster.png`;
+  }
   if (gen === 2 && trainerClass) {
     const key = GEN2_SPRITE_MAP[trainerClass];
     if (key) return `${base}/sprites/trainers-gen2/${key}.png`;

@@ -1,9 +1,5 @@
-import type { RankedTrainer } from './types';
+import type { RankedTrainer, Generation } from './types';
 
-type AIFlag =
-  | 'AI_BASIC' | 'AI_SETUP' | 'AI_TYPES' | 'AI_OFFENSIVE'
-  | 'AI_SMART' | 'AI_OPPORTUNIST' | 'AI_AGGRESSIVE'
-  | 'AI_CAUTIOUS' | 'AI_STATUS' | 'AI_RISKY';
 type SwitchFlag = 'SWITCH_OFTEN' | 'SWITCH_SOMETIMES' | 'SWITCH_RARELY' | null;
 type TrainerItem = string | null;
 type ItemUseFlag = 'CONTEXT_USE' | 'ALWAYS_USE' | null;
@@ -188,17 +184,17 @@ function parseProtocolLine(line: string): LogEvent | null {
 }
 
 /**
- * Lazily loads @pkmn/sim and the AI modules only when a replay is requested.
- * This keeps the main bundle small — the sim is ~1MB+ and only needed for replays.
+ * Lazily loads @pkmn/sim and the appropriate gen's AI modules only when a
+ * replay is requested. This keeps the main bundle small.
  */
 export async function simulateBattle(
   t1: RankedTrainer,
   t2: RankedTrainer,
+  gen: Generation,
 ): Promise<BattleLog> {
-  const [{ BattleStreams, Teams }, { ScoredPlayerAI }] = await Promise.all([
-    import('@pkmn/sim'),
-    import('../scripts/ai-gen2/player.js'),
-  ]);
+  const { BattleStreams, Teams } = await import('@pkmn/sim');
+
+  const formatId = gen === 3 ? 'gen3customgame' : 'gen2customgame';
 
   const buildTeam = (pokemon: RankedTrainer['pokemon']): string | null => {
     const team = pokemon.map(p => ({
@@ -237,26 +233,32 @@ export async function simulateBattle(
     const battleStream = new BattleStreams.BattleStream();
     const streams = BattleStreams.getPlayerStreams(battleStream);
 
-    const p1ai = new ScoredPlayerAI(
-      streams.p1, battleStream, 'p1',
-      (t1.aiFlags ?? []) as AIFlag[],
-      (t1.switchFlag as SwitchFlag) ?? null,
-      (t1.trainerItems as [TrainerItem, TrainerItem]) ?? [null, null],
-      (t1.itemUseFlag as ItemUseFlag) ?? null,
-    );
-    const p2ai = new ScoredPlayerAI(
-      streams.p2, battleStream, 'p2',
-      (t2.aiFlags ?? []) as AIFlag[],
-      (t2.switchFlag as SwitchFlag) ?? null,
-      (t2.trainerItems as [TrainerItem, TrainerItem]) ?? [null, null],
-      (t2.itemUseFlag as ItemUseFlag) ?? null,
-    );
-
-    void p1ai.start();
-    void p2ai.start();
+    if (gen === 3) {
+      const { ScoredPlayerAI } = await import('../scripts/ai-gen3/player.js');
+      const mkAI = (stream: typeof streams.p1, side: 'p1' | 'p2', t: RankedTrainer) =>
+        new ScoredPlayerAI(stream, battleStream, side, (t.aiFlags ?? []) as any, t.items ?? []);
+      const p1ai = mkAI(streams.p1, 'p1', t1);
+      const p2ai = mkAI(streams.p2, 'p2', t2);
+      void p1ai.start();
+      void p2ai.start();
+    } else {
+      const { ScoredPlayerAI } = await import('../scripts/ai-gen2/player.js');
+      const mkAI = (stream: typeof streams.p1, side: 'p1' | 'p2', t: RankedTrainer) =>
+        new ScoredPlayerAI(
+          stream, battleStream, side,
+          (t.aiFlags ?? []) as any,
+          (t.switchFlag as SwitchFlag) ?? null,
+          (t.trainerItems as [TrainerItem, TrainerItem]) ?? [null, null],
+          (t.itemUseFlag as ItemUseFlag) ?? null,
+        );
+      const p1ai = mkAI(streams.p1, 'p1', t1);
+      const p2ai = mkAI(streams.p2, 'p2', t2);
+      void p1ai.start();
+      void p2ai.start();
+    }
 
     void streams.omniscient.write(
-      `>start ${JSON.stringify({ formatid: 'gen2customgame', seed })}\n` +
+      `>start ${JSON.stringify({ formatid: formatId, seed })}\n` +
       `>player p1 ${JSON.stringify({ name: t1.name, team: team1 })}\n` +
       `>player p2 ${JSON.stringify({ name: t2.name, team: team2 })}`,
     );
@@ -282,38 +284,42 @@ export async function simulateBattle(
       }
     }
 
-    const setup: LogEvent[] = [];
-    const turns: TurnLog[] = [];
-    let currentTurn: TurnLog | null = null;
-    let resultEvent: LogEvent = { type: 'result', text: 'Battle timed out' };
-
-    for (const line of allLines) {
-      if (line.startsWith('|turn|')) {
-        const num = parseInt(line.split('|')[2], 10);
-        currentTurn = { turn: num, events: [] };
-        turns.push(currentTurn);
-        continue;
-      }
-      if (line.startsWith('|win|') || line === '|tie' || line.startsWith('|tie|')) {
-        const evt = parseProtocolLine(line);
-        if (evt) resultEvent = evt;
-        continue;
-      }
-      const evt = parseProtocolLine(line);
-      if (evt) {
-        if (currentTurn) currentTurn.events.push(evt);
-        else setup.push(evt);
-      }
-    }
-
-    return {
-      setup,
-      turns,
-      result: resultEvent,
-      p1: { name: t1.name, id: t1.id },
-      p2: { name: t2.name, id: t2.id },
-    };
+    return parseLog(allLines, t1, t2);
   } finally {
     Math.random = origRandom;
   }
+}
+
+function parseLog(allLines: string[], t1: RankedTrainer, t2: RankedTrainer): BattleLog {
+  const setup: LogEvent[] = [];
+  const turns: TurnLog[] = [];
+  let currentTurn: TurnLog | null = null;
+  let resultEvent: LogEvent = { type: 'result', text: 'Battle timed out' };
+
+  for (const line of allLines) {
+    if (line.startsWith('|turn|')) {
+      const num = parseInt(line.split('|')[2], 10);
+      currentTurn = { turn: num, events: [] };
+      turns.push(currentTurn);
+      continue;
+    }
+    if (line.startsWith('|win|') || line === '|tie' || line.startsWith('|tie|')) {
+      const evt = parseProtocolLine(line);
+      if (evt) resultEvent = evt;
+      continue;
+    }
+    const evt = parseProtocolLine(line);
+    if (evt) {
+      if (currentTurn) currentTurn.events.push(evt);
+      else setup.push(evt);
+    }
+  }
+
+  return {
+    setup,
+    turns,
+    result: resultEvent,
+    p1: { name: t1.name, id: t1.id },
+    p2: { name: t2.name, id: t2.id },
+  };
 }

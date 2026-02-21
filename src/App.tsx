@@ -18,6 +18,7 @@ function GenToggle({ gen, setGen }: { gen: Generation; setGen: (g: Generation) =
     <div className="flex gap-1">
       <button className={`gb-btn ${gen === 1 ? 'active' : ''}`} onClick={() => setGen(1)}>Gen I</button>
       <button className={`gb-btn ${gen === 2 ? 'active' : ''}`} onClick={() => setGen(2)}>Gen II</button>
+      <button className={`gb-btn ${gen === 3 ? 'active' : ''}`} onClick={() => setGen(3)}>Gen III</button>
     </div>
   );
 }
@@ -25,7 +26,7 @@ function GenToggle({ gen, setGen }: { gen: Generation; setGen: (g: Generation) =
 export default function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const mode = (searchParams.get('mode') === 'lv50' ? '-lv50' : '') as TournamentMode;
-  const gen = (searchParams.get('gen') === '2' ? 2 : 1) as Generation;
+  const gen = (searchParams.get('gen') === '3' ? 3 : searchParams.get('gen') === '2' ? 2 : 1) as Generation;
 
   const updateParams = (updates: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
@@ -37,7 +38,7 @@ export default function App() {
   };
 
   const setMode = (m: TournamentMode) => updateParams({ mode: m === '-lv50' ? 'lv50' : null! });
-  const setGen = (g: Generation) => updateParams({ gen: g === 2 ? '2' : null! });
+  const setGen = (g: Generation) => updateParams({ gen: g === 3 ? '3' : g === 2 ? '2' : null! });
 
   const qs = searchParams.toString();
   const qsSuffix = qs ? `?${qs}` : '';
