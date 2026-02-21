@@ -1,0 +1,48 @@
+{
+  "name": "poketournament",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@pkmn/engine",
+      "esbuild"
+    ]
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "parse-trainers": "tsx scripts/parse-trainers.ts",
+    "parse-trainers-gen2": "tsx scripts/parse-trainers-gen2.ts",
+    "run-tournament": "tsx scripts/run-tournament.ts",
+    "run-tournament-gen2": "tsx scripts/run-tournament-gen2.ts",
+    "calculate-elo": "python3 scripts/calculate-elo.py",
+    "generate": "pnpm run parse-trainers && pnpm run run-tournament && pnpm run calculate-elo",
+    "calculate-elo-gen2": "python3 scripts/calculate-elo.py gen2",
+    "generate-gen2": "pnpm run parse-trainers-gen2 && pnpm run run-tournament-gen2 && pnpm run calculate-elo-gen2",
+    "postinstall": "node scripts/patch-sim.cjs"
+  },
+  "dependencies": {
+    "@pkmn/data": "^0.10.6",
+    "@pkmn/dex": "^0.10.6",
+    "@pkmn/engine": "0.1.0-dev.3846c8e6",
+    "@pkmn/img": "^0.3.3",
+    "@pkmn/sets": "^5.2.0",
+    "@pkmn/sim": "^0.10.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

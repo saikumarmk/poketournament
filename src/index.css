@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Pokemon GB';
+  src: url('/fonts/Pokemon GB.woff') format('woff'),
+       url('/fonts/Pokemon GB.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/PressStart2P-Regular.woff') format('woff'),
+       url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #1a1a2e;
+  --bg-card: #16213e;
+  --bg-hover: #1f2b47;
+  --border: #2a3a5c;
+  --text: #e8e8e8;
+  --text-dim: #8892a8;
+  --text-muted: #5a6580;
+  --accent: #e2b714;
+  --win: #4ade80;
+  --loss: #f87171;
+  --link: #93b4f5;
+  color-scheme: dark;
+}
+
+body {
+  font-family: 'Pokemon GB', 'Press Start 2P', monospace;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  font-smooth: never;
+  image-rendering: pixelated;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.gb-card {
+  border: 2px solid var(--border);
+  background-color: var(--bg-card);
+}
+.gb-card:hover {
+  border-color: #3a4f7c;
+}
+
+.gb-border {
+  border: 2px solid var(--border);
+}
+
+.gb-btn {
+  font-family: 'Pokemon GB', 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  border: 2px solid var(--border);
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.gb-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: #3a4f7c;
+}
+.gb-btn.active {
+  background: var(--border);
+  color: var(--text);
+}
+
+.trainer-sprite {
+  image-rendering: pixelated;
+}
+
+.font-readable {
+  font-family: 'Fira Code', 'Fira Mono', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.7rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+
+details summary {
+  cursor: pointer;
+  user-select: none;
+}
+details summary::-webkit-details-marker {
+  display: none;
+}
+details summary::marker {
+  content: '';
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

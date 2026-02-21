@@ -1,0 +1,20 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# Raw simulation data (large, regenerable)
+data/
+
+# Disassembly repos (cloned separately)
+pokecrystal/
+pokered/
+pokeemerald/
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
