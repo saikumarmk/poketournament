@@ -7,6 +7,8 @@ interface IndexedMatchups {
   data: [number, number, number][];
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const rankingsCache: Record<string, RankedTrainer[]> = {};
 const matchupsCache: Record<string, IndexedMatchups> = {};
 
@@ -18,7 +20,7 @@ function dataSuffix(gen: Generation, mode: TournamentMode): string {
 export async function getRankings(gen: Generation, mode: TournamentMode): Promise<RankedTrainer[]> {
   const key = `${gen}${mode}`;
   if (rankingsCache[key]) return rankingsCache[key];
-  const res = await fetch(`/data/rankings${dataSuffix(gen, mode)}.json`, { cache: 'no-store' });
+  const res = await fetch(`${base}/data/rankings${dataSuffix(gen, mode)}.json`, { cache: 'no-store' });
   if (!res.ok) return [];
   rankingsCache[key] = await res.json();
   return rankingsCache[key];
@@ -27,7 +29,7 @@ export async function getRankings(gen: Generation, mode: TournamentMode): Promis
 async function loadMatchups(gen: Generation, mode: TournamentMode): Promise<IndexedMatchups> {
   const key = `${gen}${mode}`;
   if (matchupsCache[key]) return matchupsCache[key];
-  const res = await fetch(`/data/matchups${dataSuffix(gen, mode)}.json`, { cache: 'no-store' });
+  const res = await fetch(`${base}/data/matchups${dataSuffix(gen, mode)}.json`, { cache: 'no-store' });
   if (!res.ok) return { idx: [], data: [] };
   matchupsCache[key] = await res.json();
   return matchupsCache[key];
@@ -122,12 +124,12 @@ const GEN2_SPRITE_MAP: Record<string, string> = {
 export function trainerSpriteUrl(trainerName: string, gen: Generation = 1, trainerClass?: string): string {
   if (gen === 2 && trainerClass) {
     const key = GEN2_SPRITE_MAP[trainerClass];
-    if (key) return `/sprites/trainers-gen2/${key}.png`;
-    return `/sprites/trainers-gen2/youngster.png`;
+    if (key) return `${base}/sprites/trainers-gen2/${key}.png`;
+    return `${base}/sprites/trainers-gen2/youngster.png`;
   }
   const key = GEN1_SPRITE_MAP[trainerName];
-  if (key) return `/sprites/trainers/${key}.png`;
-  return `/sprites/trainers/youngster.png`;
+  if (key) return `${base}/sprites/trainers/${key}.png`;
+  return `${base}/sprites/trainers/youngster.png`;
 }
 
 export function trainerDisplayName(id: string): string {

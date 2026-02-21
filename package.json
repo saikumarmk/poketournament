@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "parse-trainers": "tsx scripts/parse-trainers.ts",
     "parse-trainers-gen2": "tsx scripts/parse-trainers-gen2.ts",
